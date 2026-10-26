@@ -1,3 +1,14 @@
+/**
+ * Panel en el navegador. Se conecta a `/ws` del mismo origen y pinta cuatro
+ * series. No habla con Kafka ni guarda histórico: la gráfica conserva como
+ * máximo 60 precios de esta pestaña.
+ *
+ * El estado pasa a "Flujo interrumpido" si el socket sigue abierto pero no
+ * llega ninguna lectura en 5 s. Binance emite cada serie cerca de una vez por
+ * segundo, así que ese silencio no es la cadencia normal. Los precios no se
+ * sustituyen por ceros durante el corte.
+ */
+
 const SERIES = [
   { code: "BTCUSDT", label: "BTC" },
   { code: "ETHUSDT", label: "ETH" },
@@ -29,6 +40,7 @@ window.setInterval(() => {
   renderRate();
 }, 500);
 
+/** Crea la fila de una serie con guiones hasta que llegue la primera lectura. */
 function createRow(series) {
   const row = document.createElement("article");
   row.className = "row";
@@ -76,6 +88,7 @@ function fact(label, field) {
   return wrapper;
 }
 
+/** Abre el WebSocket y reintenta solo si se cierra, con espera hasta 10 s. */
 function connect() {
   socketState = "connecting";
   renderStatus();
@@ -110,6 +123,7 @@ function connect() {
   });
 }
 
+/** Guarda la lectura de una serie conocida y actualiza su fila. */
 function applyReading(reading) {
   const state = seriesState.get(reading.series);
   if (!state) {
@@ -155,6 +169,7 @@ function renderStatus() {
   statusEl.dataset.state = status.state;
 }
 
+/** Deriva la etiqueta visible a partir del socket y del silencio del flujo. */
 function currentStatus() {
   if (socketState === "connecting") {
     return { label: "Conectando", state: "wait" };
@@ -183,6 +198,7 @@ function renderRate() {
   rateEl.textContent = String(arrivals.length);
 }
 
+/** Variación porcentual respecto al precio de apertura de la ventana de 24 h. */
 function percentChange(value, reference) {
   const current = Number(value);
   const base = Number(reference);

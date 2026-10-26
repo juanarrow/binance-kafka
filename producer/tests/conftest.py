@@ -1,3 +1,5 @@
+"""Hace importable ``src`` al lanzar pytest desde la raíz del repositorio."""
+
 import sys
 from pathlib import Path
 

@@ -1,3 +1,7 @@
+# Laboratorio local: productor -> Kafka -> consumidor -> panel.
+# El host solo publica el broker en 9092 y el panel en 8088.
+# Productor y consumidor se hablan por la red interna (kafka:19092).
+
 name: kafka-streaming-dashboard
 
 services:

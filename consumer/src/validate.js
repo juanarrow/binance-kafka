@@ -1,3 +1,13 @@
+/**
+ * Comprueba que un mensaje de Kafka sea una lectura del contrato versión 1.
+ *
+ * Las reglas son las mismas que en `producer/src/mapping.py`: cuatro series,
+ * importes en cadena decimal, `activityUnit` fijo en USDT y ningún campo de
+ * más. Un rechazo no tumba el consumidor; solo evita reenviarlo al panel.
+ * El esquema está en
+ * `specs/001-streaming-metrics-dashboard/contracts/reading.schema.json`.
+ */
+
 const SERIES = {
   BTCUSDT: "BTC",
   ETHUSDT: "ETH",
@@ -20,6 +30,10 @@ const FIELDS = [
   "activityUnit",
 ];
 
+/**
+ * @param {unknown} reading Mensaje JSON ya parseado del topic.
+ * @returns {{ok: true} | {ok: false, reason: string}}
+ */
 export function validateReading(reading) {
   if (reading === null || typeof reading !== "object" || Array.isArray(reading)) {
     return { ok: false, reason: "payload" };
@@ -63,6 +77,10 @@ export function validateReading(reading) {
   return { ok: true };
 }
 
+/**
+ * @param {unknown} raw
+ * @param {boolean} positive `true` exige un precio mayor que cero.
+ */
 function isDecimal(raw, positive) {
   if (typeof raw !== "string" || !DECIMAL.test(raw)) {
     return false;

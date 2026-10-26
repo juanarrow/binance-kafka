@@ -1,3 +1,14 @@
+/**
+ * Consumidor: lee `market.tickers` y lo reenvía al panel por WebSocket.
+ *
+ * El navegador no habla el protocolo de Kafka. Nginx, en el servicio `panel`,
+ * hace de proxy de `/ws` hacia el puerto de este proceso (por defecto 8081).
+ * El offset inicial es el último: quien arranca tarde no relee el pasado.
+ * `/health` solo lo usa Compose, dentro de la red de Docker.
+ *
+ * Variables: `KAFKA_BOOTSTRAP`, `KAFKA_TOPIC`, `PORT`.
+ */
+
 import http from "node:http";
 
 import { Kafka, logLevel } from "kafkajs";
@@ -30,6 +41,7 @@ sockets.on("connection", (socket) => {
   });
 });
 
+/** Envía la lectura ya validada a todas las pestañas conectadas. */
 function broadcast(reading) {
   const payload = JSON.stringify({ type: "reading", reading });
   for (const socket of clients) {
@@ -51,6 +63,10 @@ function sleep(ms) {
   });
 }
 
+/**
+ * Se suscribe al grupo `panel` y reintenta si el broker aún no tiene
+ * coordinador o el topic acaba de crearse. La espera crece hasta 10 s.
+ */
 async function consume() {
   let delay = 1000;
   for (;;) {

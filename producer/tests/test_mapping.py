@@ -1,3 +1,5 @@
+"""Casos del contrato de lectura: ticker válido, actividad cero y descartes."""
+
 from decimal import Decimal
 
 import pytest

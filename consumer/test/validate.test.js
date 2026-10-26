@@ -1,3 +1,5 @@
+/** Casos mínimos del contrato: lectura válida, versión, unidad y campo extra. */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 
