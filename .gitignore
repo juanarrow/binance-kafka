@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+consumer/node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+.coverage
+htmlcov/
